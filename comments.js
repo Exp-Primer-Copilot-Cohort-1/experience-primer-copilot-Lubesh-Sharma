@@ -1,46 +1,41 @@
-const http = require('http');
-const fs = require('fs');
-const server = http.createServer((req, res) => {
-    if (req.method === 'GET' && req.url === '/comments') {
-        // Read comments from a file
-        fs.readFile('comments.txt', 'utf8', (err, data) => {
-            if (err) {
-                res.statusCode = 500;
-                res.setHeader('Content-Type', 'text/plain');
-                res.end('Internal Server Error');
-            } else {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.end(data);
-            }
-        });
-    } else if (req.method === 'POST' && req.url === '/comments') {
-        let body = '';
-        req.on('data', (chunk) => {
-            body += chunk;
-        });
-        req.on('end', () => {
-            // Save the comment to the file
-            fs.appendFile('comments.txt', body + '\n', 'utf8', (err) => {
-                if (err) {
-                    res.statusCode = 500;
-                    res.setHeader('Content-Type', 'text/plain');
-                    res.end('Internal Server Error');
-                } else {
-                    res.statusCode = 201;
-                    res.setHeader('Content-Type', 'text/plain');
-                    res.end('Comment added successfully');
-                }
-            });
-        });
-    } else {
-        res.statusCode = 404;
-        res.setHeader('Content-Type', 'text/plain');
-        res.end('Not Found');
-    }
+// create a web server
+
+Suggestion 1
+
+// create a web server that can accept incoming request and respond to them
+
+const express = require('express');
+const app = express();
+const path = require('path');
+const bodyParser = require('body-parser');
+
+// const comments = require('./comments.json');
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(express.static('public'));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-const port = 3000;
-server.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}/`);
+app.get('/comments', (req, res) => {
+    res.json(comments);
+});
+
+app.post('/comments', (req, res) => {
+    console.log(req.body);
+    comments.push(req.body);
+    res.json(comments);
+});
+
+app.delete('/comments/:id', (req, res) => {
+    const id = req.params.id;
+    comments.splice(id, 1);
+    res.json(comments);
+});
+
+app.listen(3000, () => {
+    console.log('Listening on port 3000');
 });
