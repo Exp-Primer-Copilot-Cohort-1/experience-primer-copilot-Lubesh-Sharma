@@ -1,7 +1,4 @@
 // create a web server
-
-Suggestion 1
-
 // create a web server that can accept incoming request and respond to them
 
 const express = require('express');
